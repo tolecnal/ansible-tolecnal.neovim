@@ -19,24 +19,31 @@
   become: true
   become_user: "{{ target_user }}"
   when: nvim_config.stat.exists | bool
+  changed_when: true
 
-- name: Clone custom LazyVim configuration for {{ target_user }}
+- name: Clone custom LazyVim configuration for {{ target_user }} # noqa: latest[git]
   ansible.builtin.git:
     repo: "{{ lazyvim_custom_config_url }}"
     dest: "{{ user_lazyvim_config_path }}"
     depth: 1
+    version: HEAD # Explicitly specify HEAD to track latest commit
+    update: false
   become: true
   become_user: "{{ target_user }}"
   when: lazyvim_custom_config_url | length > 0
+  register: custom_config_clone
 
-- name: Clone official LazyVim starter configuration for {{ target_user }}
+- name: Clone official LazyVim starter configuration for {{ target_user }} # noqa: latest[git]
   ansible.builtin.git:
     repo: https://github.com/LazyVim/starter
     dest: "{{ user_lazyvim_config_path }}"
     depth: 1
+    version: HEAD # Explicitly specify HEAD to track latest commit
+    update: false
   become: true
   become_user: "{{ target_user }}"
   when: lazyvim_custom_config_url | length == 0
+  register: official_config_clone
 
 - name: Remove .git directory from LazyVim config for {{ target_user }}
   ansible.builtin.file:

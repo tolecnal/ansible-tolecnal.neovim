@@ -21,6 +21,8 @@
   changed_when: "'Installing' in bob_install.stderr or 'Compiling' in bob_install.stderr"
 
 - name: Install Bob via binary (global installation)
+  when: bob_install_method == "binary"
+  run_once: true
   block:
     - name: Detect system architecture
       ansible.builtin.set_fact:
@@ -44,8 +46,6 @@
       ansible.builtin.file:
         path: /tmp/bob
         state: absent
-  when: bob_install_method == "binary"
-  run_once: true
 
 - name: Ensure Bob directory exists for {{ target_user }}
   ansible.builtin.file:
@@ -67,7 +67,7 @@
     mode: "0660"
   become: true
 
-- name: Add Bob to PATH in .zshrc if zsh is installed for user  {{ target_user }}
+- name: Add Bob to PATH in .zshrc if zsh is installed for user {{ target_user }}
   ansible.builtin.lineinfile:
     path: "{{ user_home }}/.zshrc"
     line: 'export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"'
@@ -77,7 +77,8 @@
     group: "{{ target_user }}"
     mode: "00660"
   become: true
-  ignore_errors: true
+  register: zshrc_result
+  failed_when: zshrc_result.failed and 'Permission denied' not in zshrc_result.msg | default('')
 
 - name: Install Neovim using Bob for {{ target_user }}
   ansible.builtin.command: bob install {{ neovim_version }}

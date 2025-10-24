@@ -18,6 +18,8 @@
 
 - name: Install tree-sitter CLI via cargo for {{ target_user }}
   ansible.builtin.command: cargo install tree-sitter-cli
+  register: cargo_install_result
+  changed_when: "'Installing' in cargo_install_result.stderr or 'Compiling' in cargo_install_result.stderr"
   environment:
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_env.PATH }}"
     HOME: "{{ user_home }}"

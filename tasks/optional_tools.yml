@@ -9,6 +9,7 @@
     delta_target: "{{ 'aarch64-apple-darwin' if (ansible_os_family == 'Darwin' and (ansible_architecture == 'arm64' or ansible_architecture == 'aarch64')) else 'x86_64-apple-darwin' if (ansible_os_family == 'Darwin' and ansible_architecture == 'x86_64') else 'x86_64-unknown-linux-gnu' }}"
 
 - name: Install lazygit
+  when: install_lazygit | bool
   block:
     - name: Get latest lazygit release
       ansible.builtin.uri:
@@ -24,7 +25,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_{{ lazygit_os }}_{{ lazygit_arch }}.tar.gz"
         dest: /tmp/lazygit.tar.gz
-        mode: "0755"
+        mode: "0644"
 
     - name: Extract lazygit
       ansible.builtin.unarchive:
@@ -39,15 +40,15 @@
         mode: "0755"
         remote_src: true
       become: true
-  when: install_lazygit | bool
 
 - name: Install bottom (btm) - modern system monitor
+  when: install_bottom | bool
   block:
     - name: Download bottom
       ansible.builtin.get_url:
         url: "https://github.com/ClementTsang/bottom/releases/latest/download/bottom_{{ bottom_target }}.tar.gz"
         dest: /tmp/bottom.tar.gz
-        mode: "0755"
+        mode: "0644"
 
     - name: Extract bottom
       ansible.builtin.unarchive:
@@ -62,9 +63,9 @@
         mode: "0755"
         remote_src: true
       become: true
-  when: install_bottom | bool
 
 - name: Install delta (better git diff)
+  when: install_delta | bool
   block:
     - name: Get latest delta release
       ansible.builtin.uri:
@@ -80,7 +81,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/dandavison/delta/releases/download/{{ delta_version }}/delta-{{ delta_version }}-{{ delta_target }}.tar.gz"
         dest: /tmp/delta.tar.gz
-        mode: "0755"
+        mode: "0644"
 
     - name: Extract delta
       ansible.builtin.unarchive:
@@ -95,4 +96,3 @@
         mode: "0755"
         remote_src: true
       become: true
-  when: install_delta | bool

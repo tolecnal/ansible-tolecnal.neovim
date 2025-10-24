@@ -54,7 +54,8 @@
     mode: "0660"
   become: true
   when: rust_check.rc != 0
-  ignore_errors: true
+  register: zshrc_result
+  failed_when: zshrc_result.failed and 'Permission denied' not in zshrc_result.msg | default('')
 
 - name: Clean up rustup installer for {{ target_user }}
   ansible.builtin.file:
