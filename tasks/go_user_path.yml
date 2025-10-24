@@ -24,7 +24,10 @@
     group: "{{ target_user }}"
     mode: "0660"
   become: true
-  ignore_errors: true
+  register: zshrc_path_result
+  failed_when:
+    - zshrc_path_result.failed | bool
+    - "'Permission denied' in (zshrc_path_result.msg | default(''))"
 
 - name: Set GOPATH in bashrc for {{ target_user }}
   ansible.builtin.lineinfile:
@@ -45,4 +48,7 @@
     group: "{{ target_user }}"
     mode: "0660"
   become: true
-  ignore_errors: true
+  register: zshrc_gopath_result
+  failed_when:
+    - zshrc_gopath_result.failed | bool
+    - "'Permission denied' in (zshrc_gopath_result.msg | default(''))"

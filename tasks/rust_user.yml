@@ -24,7 +24,7 @@
   when: rust_check.rc != 0
 
 - name: Install Rust via rustup for {{ target_user }}
-  ansible.builtin.shell: /tmp/rustup-init-{{ target_user }}.sh -y --default-toolchain stable
+  ansible.builtin.command: /tmp/rustup-init-{{ target_user }}.sh -y --default-toolchain stable
   args:
     creates: "{{ user_home }}/.cargo/bin/rustc"
   become: true

@@ -15,4 +15,7 @@
     state: link
   become: true
   when: ansible_os_family == "Debian"
-  ignore_errors: true
+  register: fd_symlink_result
+  failed_when:
+    - fd_symlink_result.failed | bool
+    - "'File exists' not in (fd_symlink_result.msg | default(''))"

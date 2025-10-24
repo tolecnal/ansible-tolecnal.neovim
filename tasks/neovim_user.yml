@@ -5,7 +5,7 @@
   ansible.builtin.set_fact:
     user_home: "{{ '/Users/' + target_user if ansible_os_family == 'Darwin' else '/home/' + target_user if target_user != 'root' else '/root' }}"
 
-- name: Ensure Rust is installed for {{ target_user }} (required for Bob)
+- name: Ensure Rust is installed, required by bob for user {{ target_user }}
   ansible.builtin.include_tasks: rust_user.yml
   when: bob_install_method == "cargo"
 
@@ -64,9 +64,10 @@
     state: present
     owner: "{{ target_user }}"
     group: "{{ target_user }}"
+    mode: "0660"
   become: true
 
-- name: Add Bob to PATH in .zshrc for {{ target_user }} (if zsh is installed)
+- name: Add Bob to PATH in .zshrc if zsh is installed for user  {{ target_user }}
   ansible.builtin.lineinfile:
     path: "{{ user_home }}/.zshrc"
     line: 'export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"'
@@ -74,6 +75,7 @@
     state: present
     owner: "{{ target_user }}"
     group: "{{ target_user }}"
+    mode: "00660"
   become: true
   ignore_errors: true
 
