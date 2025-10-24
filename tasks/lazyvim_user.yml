@@ -16,7 +16,7 @@
 
 - name: Backup existing Neovim configuration for {{ target_user }}
   ansible.builtin.command: mv {{ user_lazyvim_config_path }} {{ user_lazyvim_config_path }}.backup.{{ ansible_date_time.epoch }}
-  become: yes
+  become: true
   become_user: "{{ target_user }}"
   when: nvim_config.stat.exists | bool
 
@@ -25,7 +25,7 @@
     repo: "{{ lazyvim_custom_config_url }}"
     dest: "{{ user_lazyvim_config_path }}"
     depth: 1
-  become: yes
+  become: true
   become_user: "{{ target_user }}"
   when: lazyvim_custom_config_url | length > 0
 
@@ -34,7 +34,7 @@
     repo: https://github.com/LazyVim/starter
     dest: "{{ user_lazyvim_config_path }}"
     depth: 1
-  become: yes
+  become: true
   become_user: "{{ target_user }}"
   when: lazyvim_custom_config_url | length == 0
 
@@ -42,7 +42,7 @@
   ansible.builtin.file:
     path: "{{ user_lazyvim_config_path }}/.git"
     state: absent
-  become: yes
+  become: true
   become_user: "{{ target_user }}"
 
 - name: Create LazyVim data directory for {{ target_user }}
@@ -52,7 +52,7 @@
     mode: "0755"
     owner: "{{ target_user }}"
     group: "{{ target_user }}"
-  become: yes
+  become: true
 
 - name: Create LazyVim state directory for {{ target_user }}
   ansible.builtin.file:
@@ -61,7 +61,7 @@
     mode: "0755"
     owner: "{{ target_user }}"
     group: "{{ target_user }}"
-  become: yes
+  become: true
 
 - name: Create LazyVim cache directory for {{ target_user }}
   ansible.builtin.file:
@@ -70,7 +70,7 @@
     mode: "0755"
     owner: "{{ target_user }}"
     group: "{{ target_user }}"
-  become: yes
+  become: true
 
 - name: Display LazyVim setup message for {{ target_user }}
   ansible.builtin.debug:

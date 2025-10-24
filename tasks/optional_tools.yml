@@ -24,6 +24,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_{{ lazygit_os }}_{{ lazygit_arch }}.tar.gz"
         dest: /tmp/lazygit.tar.gz
+        mode: "0755"
 
     - name: Extract lazygit
       ansible.builtin.unarchive:
@@ -46,6 +47,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/ClementTsang/bottom/releases/latest/download/bottom_{{ bottom_target }}.tar.gz"
         dest: /tmp/bottom.tar.gz
+        mode: "0755"
 
     - name: Extract bottom
       ansible.builtin.unarchive:

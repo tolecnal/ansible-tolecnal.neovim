@@ -16,10 +16,10 @@
   when: ansible_architecture == "x86_64"
 
 - name: Install essential packages for Neovim and LazyVim
-  ansible.builtin.homebrew:
+  community.general.homebrew:
     name: "{{ brew_packages }}"
     state: present
-    update_homebrew: no
+    update_homebrew: false
 
 - name: Install additional Python packages
   ansible.builtin.pip:

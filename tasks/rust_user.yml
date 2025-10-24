@@ -40,6 +40,7 @@
     create: true
     owner: "{{ target_user }}"
     group: "{{ target_user }}"
+    mode: "0660"
   become: true
   when: rust_check.rc != 0
 
@@ -50,6 +51,7 @@
     create: true
     owner: "{{ target_user }}"
     group: "{{ target_user }}"
+    mode: "0660"
   become: true
   when: rust_check.rc != 0
   ignore_errors: true

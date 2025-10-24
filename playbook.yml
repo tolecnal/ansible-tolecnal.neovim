@@ -1,12 +1,12 @@
 ---
 - name: Install LazyVim on development machines
   hosts: development
-  become: yes
+  become: true
 
   pre_tasks:
     - name: Update apt cache
-      apt:
-        update_cache: yes
+      ansible.builtin.apt:
+        update_cache: true
         cache_valid_time: 3600
       when: ansible_os_family == "Debian"
 
@@ -15,7 +15,7 @@
 
   post_tasks:
     - name: Display completion message
-      debug:
+      ansible.builtin.debug:
         msg: |
           ========================================
           LazyVim Installation Complete!
