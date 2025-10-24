@@ -20,4 +20,3 @@ loop_var_prefix: "^(__|{role}_)"
 
 # Enforce variable naming patterns
 var_naming_pattern: "^[a-z_][a-z0-9_]*$"
-

@@ -2,15 +2,15 @@
 # Install Bob and Neovim for a specific user
 
 - name: Set user home directory
-  set_fact:
+  ansible.builtin.set_fact:
     user_home: "{{ '/Users/' + target_user if ansible_os_family == 'Darwin' else '/home/' + target_user if target_user != 'root' else '/root' }}"
 
 - name: Ensure Rust is installed for {{ target_user }} (required for Bob)
-  include_tasks: rust_user.yml
+  ansible.builtin.include_tasks: rust_user.yml
   when: bob_install_method == "cargo"
 
 - name: Install Bob via cargo for {{ target_user }}
-  command: cargo install --git https://github.com/MordechaiHadad/bob.git
+  ansible.builtin.command: cargo install --git https://github.com/MordechaiHadad/bob.git
   environment:
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_env.PATH }}"
     HOME: "{{ user_home }}"
@@ -23,17 +23,17 @@
 - name: Install Bob via binary (global installation)
   block:
     - name: Detect system architecture
-      set_fact:
+      ansible.builtin.set_fact:
         bob_arch: "{{ 'x86_64' if ansible_architecture == 'x86_64' else 'aarch64' }}"
 
     - name: Download Bob binary
-      get_url:
+      ansible.builtin.get_url:
         url: "https://github.com/MordechaiHadad/bob/releases/latest/download/bob-linux-{{ bob_arch }}"
         dest: /tmp/bob
         mode: "0755"
 
     - name: Move Bob to /usr/local/bin
-      copy:
+      ansible.builtin.copy:
         src: /tmp/bob
         dest: /usr/local/bin/bob
         mode: "0755"
@@ -41,14 +41,14 @@
       become: true
 
     - name: Clean up downloaded binary
-      file:
+      ansible.builtin.file:
         path: /tmp/bob
         state: absent
   when: bob_install_method == "binary"
   run_once: true
 
 - name: Ensure Bob directory exists for {{ target_user }}
-  file:
+  ansible.builtin.file:
     path: "{{ user_home }}/.local/share/bob"
     state: directory
     mode: "0755"
@@ -57,7 +57,7 @@
   become: true
 
 - name: Add Bob to PATH in .bashrc for {{ target_user }}
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ user_home }}/.bashrc"
     line: 'export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"'
     create: true
@@ -67,7 +67,7 @@
   become: true
 
 - name: Add Bob to PATH in .zshrc for {{ target_user }} (if zsh is installed)
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ user_home }}/.zshrc"
     line: 'export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"'
     create: true
@@ -78,7 +78,7 @@
   ignore_errors: true
 
 - name: Install Neovim using Bob for {{ target_user }}
-  command: bob install {{ neovim_version }}
+  ansible.builtin.command: bob install {{ neovim_version }}
   environment:
     PATH: "{{ user_home }}/.cargo/bin:{{ user_home }}/.local/share/bob/nvim-bin:/usr/local/bin:{{ ansible_env.PATH }}"
     HOME: "{{ user_home }}"
@@ -88,7 +88,7 @@
   changed_when: "'Downloaded' in bob_nvim_install.stdout or 'Installing' in bob_nvim_install.stdout"
 
 - name: Set Neovim version as default for {{ target_user }}
-  command: bob use {{ neovim_version }}
+  ansible.builtin.command: bob use {{ neovim_version }}
   environment:
     PATH: "{{ user_home }}/.cargo/bin:{{ user_home }}/.local/share/bob/nvim-bin:/usr/local/bin:{{ ansible_env.PATH }}"
     HOME: "{{ user_home }}"
@@ -97,7 +97,7 @@
   changed_when: false
 
 - name: Verify Neovim installation for {{ target_user }}
-  command: nvim --version
+  ansible.builtin.command: nvim --version
   environment:
     PATH: "{{ user_home }}/.local/share/bob/nvim-bin:{{ ansible_env.PATH }}"
     HOME: "{{ user_home }}"
@@ -107,5 +107,5 @@
   changed_when: false
 
 - name: Display installed Neovim version for {{ target_user }}
-  debug:
+  ansible.builtin.debug:
     msg: "Neovim version installed for {{ target_user }}: {{ nvim_version_check.stdout_lines[0] }}"

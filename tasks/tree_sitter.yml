@@ -2,7 +2,7 @@
 # Install tree-sitter CLI for each target user
 
 - name: Install tree-sitter CLI for each target user
-  include_tasks: tree_sitter_user.yml
+  ansible.builtin.include_tasks: tree_sitter_user.yml
   loop: "{{ neovim_users }}"
   loop_control:
     loop_var: target_user

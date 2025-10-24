@@ -2,11 +2,11 @@
 # Install Rust using rustup for a specific user
 
 - name: Set user home directory
-  set_fact:
+  ansible.builtin.set_fact:
     user_home: "{{ '/Users/' + target_user if ansible_os_family == 'Darwin' else '/home/' + target_user if target_user != 'root' else '/root' }}"
 
 - name: Check if Rust is already installed for {{ target_user }}
-  command: rustc --version
+  ansible.builtin.command: rustc --version
   register: rust_check
   failed_when: false
   changed_when: false
@@ -17,14 +17,14 @@
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_env.PATH }}"
 
 - name: Download rustup installer for {{ target_user }}
-  get_url:
+  ansible.builtin.get_url:
     url: https://sh.rustup.rs
     dest: /tmp/rustup-init-{{ target_user }}.sh
     mode: "0755"
   when: rust_check.rc != 0
 
 - name: Install Rust via rustup for {{ target_user }}
-  shell: /tmp/rustup-init-{{ target_user }}.sh -y --default-toolchain stable
+  ansible.builtin.shell: /tmp/rustup-init-{{ target_user }}.sh -y --default-toolchain stable
   args:
     creates: "{{ user_home }}/.cargo/bin/rustc"
   become: true
@@ -34,7 +34,7 @@
   when: rust_check.rc != 0
 
 - name: Add Cargo to PATH in bashrc for {{ target_user }}
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ user_home }}/.bashrc"
     line: 'export PATH="$HOME/.cargo/bin:$PATH"'
     create: true
@@ -44,7 +44,7 @@
   when: rust_check.rc != 0
 
 - name: Add Cargo to PATH in zshrc for {{ target_user }}
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ user_home }}/.zshrc"
     line: 'export PATH="$HOME/.cargo/bin:$PATH"'
     create: true
@@ -55,7 +55,7 @@
   ignore_errors: true
 
 - name: Clean up rustup installer for {{ target_user }}
-  file:
+  ansible.builtin.file:
     path: /tmp/rustup-init-{{ target_user }}.sh
     state: absent
   when: rust_check.rc != 0

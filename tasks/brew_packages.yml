@@ -2,27 +2,27 @@
 # Install required Homebrew packages for macOS
 
 - name: Ensure Homebrew is installed
-  stat:
+  ansible.builtin.stat:
     path: /opt/homebrew/bin/brew
   register: homebrew_check
   failed_when: homebrew_check.stat.exists is defined and not (homebrew_check.stat.exists | bool)
   when: ansible_architecture == "arm64"
 
 - name: Ensure Homebrew is installed (Intel)
-  stat:
+  ansible.builtin.stat:
     path: /usr/local/bin/brew
   register: homebrew_check_intel
   failed_when: homebrew_check_intel.stat.exists is defined and not (homebrew_check_intel.stat.exists | bool)
   when: ansible_architecture == "x86_64"
 
 - name: Install essential packages for Neovim and LazyVim
-  homebrew:
+  ansible.builtin.homebrew:
     name: "{{ brew_packages }}"
     state: present
     update_homebrew: no
 
 - name: Install additional Python packages
-  pip:
+  ansible.builtin.pip:
     name:
       - pynvim
       - neovim

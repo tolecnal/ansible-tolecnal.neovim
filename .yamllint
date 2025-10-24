@@ -10,7 +10,10 @@ rules:
     indent-sequences: true
   comments:
     min-spaces-from-content: 1
-  comments-indentation: {}
+  braces:
+    max-spaces-inside: 1
+  octal-values:
+    forbid-explicit-octal: true
+  comments-indentation: false
   truthy:
-    allowed-values: ['true', 'false', 'yes', 'no']
-
+    allowed-values: ['true', 'false']

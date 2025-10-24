@@ -2,26 +2,26 @@
 # Setup LazyVim configuration for a specific user
 
 - name: Set user home directory
-  set_fact:
+  ansible.builtin.set_fact:
     user_home: "{{ '/Users/' + target_user if ansible_os_family == 'Darwin' else '/home/' + target_user if target_user != 'root' else '/root' }}"
 
 - name: Set LazyVim config path for {{ target_user }}
-  set_fact:
+  ansible.builtin.set_fact:
     user_lazyvim_config_path: "{{ user_home }}/.config/nvim"
 
 - name: Check if Neovim config already exists for {{ target_user }}
-  stat:
+  ansible.builtin.stat:
     path: "{{ user_lazyvim_config_path }}"
   register: nvim_config
 
 - name: Backup existing Neovim configuration for {{ target_user }}
-  command: mv {{ user_lazyvim_config_path }} {{ user_lazyvim_config_path }}.backup.{{ ansible_date_time.epoch }}
+  ansible.builtin.command: mv {{ user_lazyvim_config_path }} {{ user_lazyvim_config_path }}.backup.{{ ansible_date_time.epoch }}
   become: yes
   become_user: "{{ target_user }}"
   when: nvim_config.stat.exists | bool
 
 - name: Clone custom LazyVim configuration for {{ target_user }}
-  git:
+  ansible.builtin.git:
     repo: "{{ lazyvim_custom_config_url }}"
     dest: "{{ user_lazyvim_config_path }}"
     depth: 1
@@ -30,7 +30,7 @@
   when: lazyvim_custom_config_url | length > 0
 
 - name: Clone official LazyVim starter configuration for {{ target_user }}
-  git:
+  ansible.builtin.git:
     repo: https://github.com/LazyVim/starter
     dest: "{{ user_lazyvim_config_path }}"
     depth: 1
@@ -39,14 +39,14 @@
   when: lazyvim_custom_config_url | length == 0
 
 - name: Remove .git directory from LazyVim config for {{ target_user }}
-  file:
+  ansible.builtin.file:
     path: "{{ user_lazyvim_config_path }}/.git"
     state: absent
   become: yes
   become_user: "{{ target_user }}"
 
 - name: Create LazyVim data directory for {{ target_user }}
-  file:
+  ansible.builtin.file:
     path: "{{ user_home }}/.local/share/nvim"
     state: directory
     mode: "0755"
@@ -55,7 +55,7 @@
   become: yes
 
 - name: Create LazyVim state directory for {{ target_user }}
-  file:
+  ansible.builtin.file:
     path: "{{ user_home }}/.local/state/nvim"
     state: directory
     mode: "0755"
@@ -64,7 +64,7 @@
   become: yes
 
 - name: Create LazyVim cache directory for {{ target_user }}
-  file:
+  ansible.builtin.file:
     path: "{{ user_home }}/.cache/nvim"
     state: directory
     mode: "0755"
@@ -73,7 +73,7 @@
   become: yes
 
 - name: Display LazyVim setup message for {{ target_user }}
-  debug:
+  ansible.builtin.debug:
     msg: |
       LazyVim has been installed for {{ target_user }} to {{ user_lazyvim_config_path }}
       {% if lazyvim_custom_config_url | length > 0 %}

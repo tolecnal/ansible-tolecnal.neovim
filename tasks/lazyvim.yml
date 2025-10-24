@@ -2,7 +2,7 @@
 # Setup LazyVim configuration
 
 - name: Setup LazyVim for each target user
-  include_tasks: lazyvim_user.yml
+  ansible.builtin.include_tasks: lazyvim_user.yml
   loop: "{{ neovim_users }}"
   loop_control:
     loop_var: target_user

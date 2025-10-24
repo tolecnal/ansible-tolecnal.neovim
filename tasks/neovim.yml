@@ -1,6 +1,6 @@
 ---
 - name: Install Bob and Neovim for each target user
-  include_tasks: neovim_user.yml
+  ansible.builtin.include_tasks: neovim_user.yml
   loop: "{{ neovim_users }}"
   loop_control:
     loop_var: target_user

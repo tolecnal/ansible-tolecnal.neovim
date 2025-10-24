@@ -2,13 +2,13 @@
 # Install Rust using rustup
 
 - name: Check if Rust is already installed
-  command: rustc --version
+  ansible.builtin.command: rustc --version
   register: rust_check
   failed_when: false
   changed_when: false
 
 - name: Install Rust for each target user
-  include_tasks: rust_user.yml
+  ansible.builtin.include_tasks: rust_user.yml
   loop: "{{ neovim_users }}"
   loop_control:
     loop_var: target_user

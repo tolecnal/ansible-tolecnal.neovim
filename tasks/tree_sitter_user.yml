@@ -2,11 +2,11 @@
 # Install tree-sitter CLI for a specific user
 
 - name: Set user home directory
-  set_fact:
+  ansible.builtin.set_fact:
     user_home: "{{ '/Users/' + target_user if ansible_os_family == 'Darwin' else '/home/' + target_user if target_user != 'root' else '/root' }}"
 
 - name: Check if tree-sitter is already installed for {{ target_user }}
-  command: tree-sitter --version
+  ansible.builtin.command: tree-sitter --version
   register: tree_sitter_check
   failed_when: false
   changed_when: false
@@ -17,7 +17,7 @@
     HOME: "{{ user_home }}"
 
 - name: Install tree-sitter CLI via cargo for {{ target_user }}
-  command: cargo install tree-sitter-cli
+  ansible.builtin.command: cargo install tree-sitter-cli
   environment:
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_env.PATH }}"
     HOME: "{{ user_home }}"
@@ -28,7 +28,7 @@
   poll: 10
 
 - name: Verify tree-sitter installation for {{ target_user }}
-  command: tree-sitter --version
+  ansible.builtin.command: tree-sitter --version
   register: tree_sitter_verify
   changed_when: false
   become: true

@@ -64,6 +64,7 @@ apt_packages:
   - automake
   - g++
   - ninja-build
+  - inotify-tools
 
 # Homebrew packages to install (macOS)
 brew_packages:
