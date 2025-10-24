@@ -1,0 +1,48 @@
+---
+# Configure Go PATH for a specific user
+
+- name: Set user home directory
+  set_fact:
+    user_home: "{{ '/Users/' + target_user if ansible_os_family == 'Darwin' else '/home/' + target_user if target_user != 'root' else '/root' }}"
+
+- name: Add Go to PATH in bashrc for {{ target_user }}
+  lineinfile:
+    path: "{{ user_home }}/.bashrc"
+    line: "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin"
+    create: true
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: "0660"
+  become: true
+
+- name: Add Go to PATH in zshrc for {{ target_user }}
+  lineinfile:
+    path: "{{ user_home }}/.zshrc"
+    line: "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin"
+    create: true
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: "0660"
+  become: true
+  ignore_errors: true
+
+- name: Set GOPATH in bashrc for {{ target_user }}
+  lineinfile:
+    path: "{{ user_home }}/.bashrc"
+    line: "export GOPATH=$HOME/go"
+    create: true
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: "0660"
+  become: true
+
+- name: Set GOPATH in zshrc for {{ target_user }}
+  lineinfile:
+    path: "{{ user_home }}/.zshrc"
+    line: "export GOPATH=$HOME/go"
+    create: true
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: "0660"
+  become: true
+  ignore_errors: true

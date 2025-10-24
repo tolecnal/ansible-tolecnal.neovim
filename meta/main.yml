@@ -1,0 +1,36 @@
+---
+galaxy_info:
+  role_name: neovim
+  namespace: tolecnal
+  author: tolecnal
+  description: Ansible role to install and configure Neovim with LazyVim using Bob version manager
+  company: tolecnal
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble # 24.04
+        - mantic # 23.10
+    - name: Debian
+      versions:
+        - bookworm # 12
+        - trixie # 13
+    - name: MacOSX
+      versions:
+        - all
+  galaxy_tags:
+    - neovim
+    - lazyvim
+    - development
+    - editor
+    - bob
+    - macos
+    - vim
+    - ide
+    - rust
+    - golang
+
+dependencies:
+  - role: geerlingguy.nodejs
+    when: nodejs_install | bool

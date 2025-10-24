@@ -1,0 +1,7 @@
+---
+# External role dependencies
+# Install with: ansible-galaxy install -r requirements.yml
+
+roles:
+  - name: geerlingguy.nodejs
+    version: 7.0.0

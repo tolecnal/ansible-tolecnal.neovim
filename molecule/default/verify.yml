@@ -1,0 +1,137 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Check if essential packages are installed (Debian/Ubuntu)
+      ansible.builtin.package:
+        name:
+          - build-essential
+          - git
+          - curl
+          - ripgrep
+          - fd-find
+          - fzf
+        state: present
+      check_mode: true
+      register: packages_check
+      failed_when: packages_check is changed
+      when: ansible_os_family == 'Debian'
+
+    - name: Check if Rust is installed
+      ansible.builtin.command: rustc --version
+      register: rust_version
+      changed_when: false
+      failed_when: rust_version.rc != 0
+
+    - name: Check if Cargo is installed
+      ansible.builtin.command: cargo --version
+      register: cargo_version
+      changed_when: false
+      failed_when: cargo_version.rc != 0
+
+    - name: Check if Go is installed
+      ansible.builtin.command: go version
+      register: go_version
+      changed_when: false
+      failed_when: go_version.rc != 0
+
+    - name: Check if Node.js is installed
+      ansible.builtin.command: node --version
+      register: node_version
+      changed_when: false
+      failed_when: node_version.rc != 0
+
+    - name: Check if npm is installed
+      ansible.builtin.command: npm --version
+      register: npm_version
+      changed_when: false
+      failed_when: npm_version.rc != 0
+
+    - name: Verify Bob installation for each user
+      ansible.builtin.stat:
+        path: "{{ item.home }}/.local/share/bob/bob"
+      register: bob_binary
+      failed_when: not bob_binary.stat.exists
+      become: true
+      become_user: "{{ item.name }}"
+      loop:
+        - { name: testuser1, home: /home/testuser1 }
+        - { name: testuser2, home: /home/testuser2 }
+
+    - name: Check if Neovim is installed via Bob for each user
+      ansible.builtin.command: "{{ item.home }}/.local/share/bob/nvim-bin/nvim --version"
+      register: nvim_version
+      changed_when: false
+      failed_when: nvim_version.rc != 0
+      become: true
+      become_user: "{{ item.name }}"
+      loop:
+        - { name: testuser1, home: /home/testuser1 }
+        - { name: testuser2, home: /home/testuser2 }
+
+    - name: Verify LazyVim configuration exists for each user
+      ansible.builtin.stat:
+        path: "{{ item.home }}/.config/nvim/init.lua"
+      register: lazyvim_config
+      failed_when: not lazyvim_config.stat.exists
+      become: true
+      become_user: "{{ item.name }}"
+      loop:
+        - { name: testuser1, home: /home/testuser1 }
+        - { name: testuser2, home: /home/testuser2 }
+
+    - name: Check if tree-sitter is installed
+      ansible.builtin.command: tree-sitter --version
+      register: tree_sitter_version
+      changed_when: false
+      failed_when: tree_sitter_version.rc != 0
+
+    - name: Check if lazygit is installed
+      ansible.builtin.command: lazygit --version
+      register: lazygit_version
+      changed_when: false
+      failed_when: lazygit_version.rc != 0
+
+    - name: Verify Rust is in PATH for test users
+      ansible.builtin.shell: |
+        source ~/.bashrc
+        rustc --version
+      args:
+        executable: /bin/bash
+      register: rust_path_check
+      changed_when: false
+      failed_when: rust_path_check.rc != 0
+      become: true
+      become_user: "{{ item }}"
+      loop:
+        - testuser1
+        - testuser2
+
+    - name: Verify Go is in PATH for test users
+      ansible.builtin.shell: |
+        source ~/.bashrc
+        go version
+      args:
+        executable: /bin/bash
+      register: go_path_check
+      changed_when: false
+      failed_when: go_path_check.rc != 0
+      become: true
+      become_user: "{{ item }}"
+      loop:
+        - testuser1
+        - testuser2
+
+    - name: Display verification summary
+      ansible.builtin.debug:
+        msg:
+          - "Rust version: {{ rust_version.stdout }}"
+          - "Cargo version: {{ cargo_version.stdout }}"
+          - "Go version: {{ go_version.stdout }}"
+          - "Node.js version: {{ node_version.stdout }}"
+          - "npm version: {{ npm_version.stdout }}"
+          - "tree-sitter version: {{ tree_sitter_version.stdout }}"
+          - "lazygit version: {{ lazygit_version.stdout }}"

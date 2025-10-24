@@ -1,0 +1,23 @@
+---
+profile: production
+
+exclude_paths:
+  - .github/
+  - molecule/
+  - .cache/
+
+skip_list:
+  - yaml[line-length]
+  - name[casing]
+
+warn_list:
+  - experimental
+  - ignore-errors
+  - no-handler
+
+# Enable checking of loop variable prefixes in roles
+loop_var_prefix: "^(__|{role}_)"
+
+# Enforce variable naming patterns
+var_naming_pattern: "^[a-z_][a-z0-9_]*$"
+

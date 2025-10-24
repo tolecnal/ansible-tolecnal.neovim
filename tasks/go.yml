@@ -1,0 +1,45 @@
+---
+# Install Go programming language
+
+- name: Check if Go is already installed
+  command: go version
+  register: go_check
+  failed_when: false
+  changed_when: false
+
+- name: Get system architecture
+  set_fact:
+    go_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' if ansible_architecture == 'aarch64' or ansible_architecture == 'arm64' else ansible_architecture }}"
+
+- name: Get OS type for Go download
+  set_fact:
+    go_os: "{{ 'darwin' if ansible_os_family == 'Darwin' else 'linux' }}"
+
+- name: Download Go tarball
+  get_url:
+    url: "https://go.dev/dl/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+    dest: "/tmp/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+    mode: "0644"
+  when: go_check.rc != 0
+
+- name: Remove old Go installation
+  file:
+    path: /usr/local/go
+    state: absent
+  become: true
+  when: go_check.rc != 0
+
+- name: Extract Go tarball
+  unarchive:
+    src: "/tmp/go{{ go_version }}.{{ go_os }}-{{ go_arch }}.tar.gz"
+    dest: /usr/local
+    remote_src: true
+  become: true
+  when: go_check.rc != 0
+
+# Configure Go PATH for each target user
+- name: Configure Go PATH for each target user
+  include_tasks: go_user_path.yml
+  loop: "{{ neovim_users }}"
+  loop_control:
+    loop_var: target_user

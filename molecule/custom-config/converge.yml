@@ -1,0 +1,15 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: tolecnal.neovim
+      vars:
+        target_users:
+          - customuser
+        lazyvim_custom_config_url: "https://github.com/LazyVim/starter.git"
+        install_lazygit: false
+        install_bottom: false
+        install_delta: false

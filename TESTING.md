@@ -1,0 +1,13 @@
+[defaults]
+inventory = inventory
+host_key_checking = False
+retry_files_enabled = False
+roles_path = ./roles
+collections_paths = ./collections
+allow_broken_conditionals = True
+
+[privilege_escalation]
+become = True
+become_method = sudo
+become_user = root
+become_ask_pass = False

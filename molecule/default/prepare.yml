@@ -1,0 +1,36 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Update apt cache (Debian/Ubuntu)
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family == 'Debian'
+
+    - name: Install sudo
+      ansible.builtin.package:
+        name: sudo
+        state: present
+
+    - name: Create test users
+      ansible.builtin.user:
+        name: "{{ item }}"
+        state: present
+        shell: /bin/bash
+        create_home: true
+      loop:
+        - testuser1
+        - testuser2
+
+    - name: Add test users to sudoers
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers
+        line: "{{ item }} ALL=(ALL) NOPASSWD: ALL"
+        validate: "visudo -cf %s"
+      loop:
+        - testuser1
+        - testuser2

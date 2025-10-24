@@ -1,0 +1,55 @@
+---
+# tasks file for lazyvim
+
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+  failed_when: false
+
+- name: Ensure system is up to date (Debian/Ubuntu)
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+  when: ansible_os_family == "Debian"
+
+- name: Update Homebrew (macOS)
+  homebrew:
+    update_homebrew: true
+  when: ansible_os_family == "Darwin"
+
+- name: Install packages (Debian/Ubuntu)
+  include_tasks: apt_packages.yml
+  when: ansible_os_family == "Debian"
+
+- name: Install packages (macOS)
+  include_tasks: brew_packages.yml
+  when: ansible_os_family == "Darwin"
+
+- name: Install Rust
+  include_tasks: rust.yml
+  when: rust_install | bool
+
+- name: Install Go
+  include_tasks: go.yml
+  when: go_install | bool
+
+- name: Install Neovim
+  include_tasks: neovim.yml
+
+- name: Install tree-sitter CLI
+  include_tasks: tree_sitter.yml
+  when: tree_sitter_install | bool
+
+- name: Install optional tools
+  include_tasks: optional_tools.yml
+
+- name: Setup LazyVim
+  include_tasks: lazyvim.yml
+  when: lazyvim_install | bool
+
+- name: Display completion message
+  debug:
+    msg: |
+      LazyVim installation complete!
+      Run 'nvim' to start Neovim and LazyVim will automatically install plugins.
+      First launch may take a few minutes to download and compile plugins.

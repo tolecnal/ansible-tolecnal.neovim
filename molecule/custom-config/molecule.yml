@@ -1,0 +1,57 @@
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: molecule/custom-config/requirements.yml
+
+driver:
+  name: docker
+
+platforms:
+  - name: ubuntu2404-custom
+    image: geerlingguy/docker-ubuntu2404-ansible:latest
+    command: ""
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    cgroupns_mode: host
+    privileged: true
+    pre_build_image: true
+
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_ALLOW_BROKEN_CONDITIONALS: "True"
+  config_options:
+    defaults:
+      callbacks_enabled: profile_tasks,timer
+      stdout_callback: yaml
+      allow_broken_conditionals: true
+  inventory:
+    group_vars:
+      all:
+        target_users:
+          - root
+        neovim_users: "{{ target_users }}"
+        bob_install_method: cargo
+        # Test with custom LazyVim config
+        lazyvim_custom_config_url: "https://github.com/LazyVim/starter.git"
+        install_lazygit: false
+        install_bottom: false
+        install_delta: false
+        nodejs_install_npm_user: root
+
+verifier:
+  name: ansible
+
+scenario:
+  name: custom-config
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - create
+    - prepare
+    - converge
+    - verify
+    - cleanup
+    - destroy

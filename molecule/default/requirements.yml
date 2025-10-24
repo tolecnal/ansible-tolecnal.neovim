@@ -1,0 +1,6 @@
+---
+# Molecule test dependencies
+# Only external roles needed for testing - the role being tested is loaded from the local directory
+roles:
+  - name: geerlingguy.nodejs
+    version: 7.0.0

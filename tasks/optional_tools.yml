@@ -1,0 +1,95 @@
+---
+# Install optional but useful tools for LazyVim
+
+- name: Set OS-specific download URLs
+  set_fact:
+    lazygit_os: "{{ 'Darwin' if ansible_os_family == 'Darwin' else 'Linux' }}"
+    lazygit_arch: "{{ 'arm64' if ansible_architecture == 'arm64' or ansible_architecture == 'aarch64' else 'x86_64' }}"
+    bottom_target: "{{ 'aarch64-apple-darwin' if (ansible_os_family == 'Darwin' and (ansible_architecture == 'arm64' or ansible_architecture == 'aarch64')) else 'x86_64-apple-darwin' if (ansible_os_family == 'Darwin' and ansible_architecture == 'x86_64') else 'x86_64-unknown-linux-gnu' }}"
+    delta_target: "{{ 'aarch64-apple-darwin' if (ansible_os_family == 'Darwin' and (ansible_architecture == 'arm64' or ansible_architecture == 'aarch64')) else 'x86_64-apple-darwin' if (ansible_os_family == 'Darwin' and ansible_architecture == 'x86_64') else 'x86_64-unknown-linux-gnu' }}"
+
+- name: Install lazygit
+  block:
+    - name: Get latest lazygit release
+      uri:
+        url: https://api.github.com/repos/jesseduffield/lazygit/releases/latest
+        return_content: true
+      register: lazygit_release
+
+    - name: Set lazygit version
+      set_fact:
+        lazygit_version: "{{ lazygit_release.json.tag_name | regex_replace('^v', '') }}"
+
+    - name: Download lazygit
+      get_url:
+        url: "https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_{{ lazygit_os }}_{{ lazygit_arch }}.tar.gz"
+        dest: /tmp/lazygit.tar.gz
+
+    - name: Extract lazygit
+      unarchive:
+        src: /tmp/lazygit.tar.gz
+        dest: /tmp
+        remote_src: true
+
+    - name: Install lazygit
+      copy:
+        src: /tmp/lazygit
+        dest: /usr/local/bin/lazygit
+        mode: "0755"
+        remote_src: true
+      become: true
+  when: install_lazygit | bool
+
+- name: Install bottom (btm) - modern system monitor
+  block:
+    - name: Download bottom
+      get_url:
+        url: "https://github.com/ClementTsang/bottom/releases/latest/download/bottom_{{ bottom_target }}.tar.gz"
+        dest: /tmp/bottom.tar.gz
+
+    - name: Extract bottom
+      unarchive:
+        src: /tmp/bottom.tar.gz
+        dest: /tmp
+        remote_src: true
+
+    - name: Install bottom
+      copy:
+        src: /tmp/btm
+        dest: /usr/local/bin/btm
+        mode: "0755"
+        remote_src: true
+      become: true
+  when: install_bottom | bool
+
+- name: Install delta (better git diff)
+  block:
+    - name: Get latest delta release
+      uri:
+        url: https://api.github.com/repos/dandavison/delta/releases/latest
+        return_content: true
+      register: delta_release
+
+    - name: Set delta version
+      set_fact:
+        delta_version: "{{ delta_release.json.tag_name }}"
+
+    - name: Download delta
+      get_url:
+        url: "https://github.com/dandavison/delta/releases/download/{{ delta_version }}/delta-{{ delta_version }}-{{ delta_target }}.tar.gz"
+        dest: /tmp/delta.tar.gz
+
+    - name: Extract delta
+      unarchive:
+        src: /tmp/delta.tar.gz
+        dest: /tmp
+        remote_src: true
+
+    - name: Install delta
+      copy:
+        src: "/tmp/delta-{{ delta_version }}-{{ delta_target }}/delta"
+        dest: /usr/local/bin/delta
+        mode: "0755"
+        remote_src: true
+      become: true
+  when: install_delta | bool

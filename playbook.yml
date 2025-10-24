@@ -1,0 +1,35 @@
+---
+- name: Install LazyVim on development machines
+  hosts: development
+  become: yes
+
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+  roles:
+    - tolecnal.neovim
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg: |
+          ========================================
+          LazyVim Installation Complete!
+          ========================================
+
+          Next steps:
+          1. Run 'nvim' to start Neovim
+          2. Wait for LazyVim to install plugins (first launch only)
+          3. Restart Neovim after installation completes
+
+          Useful commands:
+          - :Lazy - Plugin manager
+          - :Mason - LSP/DAP/Linter installer
+          - :checkhealth - Check Neovim health
+
+          Configuration location: ~/.config/nvim
+          ========================================

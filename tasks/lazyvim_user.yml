@@ -1,0 +1,85 @@
+---
+# Setup LazyVim configuration for a specific user
+
+- name: Set user home directory
+  set_fact:
+    user_home: "{{ '/Users/' + target_user if ansible_os_family == 'Darwin' else '/home/' + target_user if target_user != 'root' else '/root' }}"
+
+- name: Set LazyVim config path for {{ target_user }}
+  set_fact:
+    user_lazyvim_config_path: "{{ user_home }}/.config/nvim"
+
+- name: Check if Neovim config already exists for {{ target_user }}
+  stat:
+    path: "{{ user_lazyvim_config_path }}"
+  register: nvim_config
+
+- name: Backup existing Neovim configuration for {{ target_user }}
+  command: mv {{ user_lazyvim_config_path }} {{ user_lazyvim_config_path }}.backup.{{ ansible_date_time.epoch }}
+  become: yes
+  become_user: "{{ target_user }}"
+  when: nvim_config.stat.exists | bool
+
+- name: Clone custom LazyVim configuration for {{ target_user }}
+  git:
+    repo: "{{ lazyvim_custom_config_url }}"
+    dest: "{{ user_lazyvim_config_path }}"
+    depth: 1
+  become: yes
+  become_user: "{{ target_user }}"
+  when: lazyvim_custom_config_url | length > 0
+
+- name: Clone official LazyVim starter configuration for {{ target_user }}
+  git:
+    repo: https://github.com/LazyVim/starter
+    dest: "{{ user_lazyvim_config_path }}"
+    depth: 1
+  become: yes
+  become_user: "{{ target_user }}"
+  when: lazyvim_custom_config_url | length == 0
+
+- name: Remove .git directory from LazyVim config for {{ target_user }}
+  file:
+    path: "{{ user_lazyvim_config_path }}/.git"
+    state: absent
+  become: yes
+  become_user: "{{ target_user }}"
+
+- name: Create LazyVim data directory for {{ target_user }}
+  file:
+    path: "{{ user_home }}/.local/share/nvim"
+    state: directory
+    mode: "0755"
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+  become: yes
+
+- name: Create LazyVim state directory for {{ target_user }}
+  file:
+    path: "{{ user_home }}/.local/state/nvim"
+    state: directory
+    mode: "0755"
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+  become: yes
+
+- name: Create LazyVim cache directory for {{ target_user }}
+  file:
+    path: "{{ user_home }}/.cache/nvim"
+    state: directory
+    mode: "0755"
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+  become: yes
+
+- name: Display LazyVim setup message for {{ target_user }}
+  debug:
+    msg: |
+      LazyVim has been installed for {{ target_user }} to {{ user_lazyvim_config_path }}
+      {% if lazyvim_custom_config_url | length > 0 %}
+      Using custom configuration from: {{ lazyvim_custom_config_url }}
+      {% else %}
+      Using official LazyVim starter configuration
+      {% endif %}
+      On first launch, Neovim will automatically install all plugins.
+      This may take a few minutes. Please be patient.

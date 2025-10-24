@@ -1,0 +1,86 @@
+---
+# defaults file for lazyvim
+
+# Neovim version to install via Bob
+neovim_version: "stable" # or "nightly" or specific version like "v0.9.5"
+
+# Bob version manager for Neovim
+bob_install_method: "cargo" # or "binary"
+bob_version: "latest" # or specific version like "v2.0.0"
+
+# Rust installation (required for Bob if using cargo method)
+rust_install: true
+
+# Go installation
+go_install: true
+go_version: "1.25.3"
+
+# Node.js installation
+nodejs_install: true
+nodejs_version: "24"
+
+# Tree-sitter CLI
+tree_sitter_install: true
+
+# Defaults to current ansible user, but can be overridden with a list of users
+target_users:
+  - "{{ ansible_user_id }}"
+
+# LazyVim configuration
+lazyvim_install: true
+lazyvim_custom_config_url: "" # Set to your custom config git URL to use instead of official starter
+
+# Optional tools
+install_lazygit: true
+install_bottom: true # Modern system monitor
+install_delta: true # Better git diff viewer
+
+# APT packages to install (Linux)
+apt_packages:
+  - build-essential
+  - git
+  - curl
+  - wget
+  - unzip
+  - tar
+  - python3
+  - python3-pip
+  - python3-venv
+  - python3-pynvim
+  - python3-neovim
+  - sqlite3
+  - sqlfluff
+  - fd-find
+  - fzf
+  - ripgrep
+  - xclip
+  - luarocks
+  - gettext
+  - cmake
+  - pkg-config
+  - libtool
+  - libtool-bin
+  - autoconf
+  - automake
+  - g++
+  - ninja-build
+
+# Homebrew packages to install (macOS)
+brew_packages:
+  - git
+  - curl
+  - wget
+  - unzip
+  - python3
+  - fd
+  - fzf
+  - ripgrep
+  - luarocks
+  - gettext
+  - cmake
+  - pkg-config
+  - libtool
+  - autoconf
+  - automake
+  - ninja
+  - gcc

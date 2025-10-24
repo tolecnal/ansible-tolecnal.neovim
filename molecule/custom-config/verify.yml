@@ -1,0 +1,23 @@
+---
+- name: Verify Custom Config
+  hosts: all
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Verify custom LazyVim configuration exists
+      ansible.builtin.stat:
+        path: /home/customuser/.config/nvim/init.lua
+      register: custom_config
+      failed_when: not custom_config.stat.exists
+
+    - name: Check if custom config is from the specified repository
+      ansible.builtin.command: git -C /home/customuser/.config/nvim remote get-url origin
+      register: git_remote
+      changed_when: false
+      become_user: customuser
+      failed_when: "'LazyVim/starter' not in git_remote.stdout"
+
+    - name: Display custom config verification
+      ansible.builtin.debug:
+        msg: "Custom LazyVim config successfully installed from: {{ git_remote.stdout }}"
